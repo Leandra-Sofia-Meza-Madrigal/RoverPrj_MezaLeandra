@@ -1,0 +1,271 @@
+import java.util.ArrayList;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+/**
+ * Simulador de Mars Rovers, un robot explorador en Marte, capaz de moverse 
+ * en un plano cartesiano, consumir y recargar energía, detectar posibles 
+ * peligros y registrar las acciones que realiza.
+ * 
+ * Leandra Sofía Meza Madrigal - 2025121853
+ 
+ */
+
+public class Rover
+{
+    // Atributos
+    private double potenciaDisponible = 100;
+    private String nombrePila;
+    private int cantDeteccionCalor;
+    private int posicionX;
+    private int posicionY;
+    private int posicionInicialX;
+    private int posicionInicialY;
+    private int recargasDisponibles = 5;
+    
+    private static int id;
+    private String codigo = "MR-";
+    private double potenciaInicial = 100;
+    
+    private ArrayList<ArrayList<String>> mandatosExitosos;
+    private ArrayList<ArrayList<String>> mandatosFracasados;
+    
+    private static double costoMovimiento = 0.5;
+    private static double costoDeteccionCalor = 0.25;
+    
+    private static int cantidadRovers;
+    
+    
+    // Constructores
+    /**
+     * Constructor for objects of class Rover
+     */
+    public Rover(String nombre, double nivelPotenciaInicial)
+    {
+        // initialise instance variables
+        id+= 1;
+        codigo= codigo + id;
+        nombrePila = nombre;
+        potenciaInicial= nivelPotenciaInicial;
+        potenciaDisponible= nivelPotenciaInicial;
+        cantidadRovers +=1;
+        
+        mandatosExitosos = new ArrayList<>();
+        mandatosFracasados = new ArrayList<>();
+        
+    }
+    public Rover(String nombre)
+    {
+        id+= 1;
+        codigo= codigo + id;
+        nombrePila = nombre; 
+        cantidadRovers +=1;
+        
+        mandatosExitosos = new ArrayList<>();
+        mandatosFracasados = new ArrayList<>();
+        
+    }
+    //Métodos
+    public boolean realizarDeteccionFugaCalor()
+    {
+        cantDeteccionCalor +=1;
+        if (validarPotenciaDeteccion(potenciaDisponible) == true)
+        {
+            registrarMandato("Deteccion", "Exitoso");
+            potenciaDisponible -= costoDeteccionCalor;
+            double num = Math.random();
+            if (num >= 0.5)
+            { 
+                return false;
+            } else
+            {   
+                return true;
+            }
+        } else
+        {
+            registrarMandato("Deteccion", "Fracasado");
+            return false;
+        }
+    }
+    public void moverAdelante()
+    {
+        if (realizarDeteccionFugaCalor() == true) 
+        { 
+            if(validarPotenciaMovimiento(potenciaDisponible)== true )
+            {
+                posicionY ++;
+                potenciaDisponible -= costoMovimiento;
+                registrarMandato("Movimiento", "Exitoso");
+            } else
+            {
+                registrarMandato("Movimiento", "Fracasado");
+            }
+        } else
+        {
+            registrarMandato("Movimiento", "Fracasado");
+        }
+    }
+    public void moverAtras()
+    {
+        if (realizarDeteccionFugaCalor() == true)
+        {
+            if(validarPotenciaMovimiento(potenciaDisponible)== true)
+            {
+                posicionY --;
+                potenciaDisponible -= costoMovimiento;
+                registrarMandato("Movimiento", "Exitoso");
+            } else
+            {
+                registrarMandato("Movimiento", "Fracasado");
+            }
+        } else
+        {
+            registrarMandato("Movimiento", "Fracasado");
+        }
+    }
+    public void moverDerecha()
+    {
+        if (realizarDeteccionFugaCalor() == true)
+        {
+            if(validarPotenciaMovimiento(potenciaDisponible)== true)
+            {
+                posicionX ++;
+                potenciaDisponible -= costoMovimiento;
+                registrarMandato("Movimiento", "Exitoso");
+            } else
+            {
+                registrarMandato("Movimiento", "Fracasado");
+            }
+        } else
+        {
+           registrarMandato("Movimiento", "Fracasado"); 
+        }
+    }
+    public void moverIzquierda()
+    {
+        if (realizarDeteccionFugaCalor() == true)
+        {
+            if(validarPotenciaMovimiento(potenciaDisponible)== true)
+            {
+            posicionX -- ;
+            potenciaDisponible -= costoMovimiento;
+            registrarMandato("Movimiento", "Exitoso");
+            } else
+            {
+                registrarMandato("Movimiento", "Fracasado");
+            }
+        } else
+        {
+            registrarMandato("Movimiento", "Fracasado");
+        }
+    }
+    public String getPosicionActual()
+    {
+        String posicion;
+        posicion = "(" + posicionX + "," + posicionY + ")";
+        return posicion;
+    }
+    public double getPotenciaDisponible()
+    {
+        return potenciaDisponible;
+    }
+    public void recargarPotencia(double unidadesAleacionRecarga)
+    {
+        if (unidadesAleacionRecarga > 0 && validarLimiteRecarga() == true)
+        {
+            registrarMandato("Recarga", "Exitoso");
+            potenciaDisponible += unidadesAleacionRecarga;
+            recargasDisponibles -= 1;
+        } else
+        {   
+            registrarMandato("Recarga", "Fracasado");
+        }
+    }
+    private boolean validarLimiteRecarga()
+    {
+        if (recargasDisponibles > 0)
+        {
+            return true;
+        }
+        else
+        { 
+            return false;
+        }
+    }
+    public int getCantidadRovers()
+    {
+        return cantidadRovers;
+    }
+    private boolean validarPotenciaMovimiento(double potenciaDisponible)
+    {
+        if (potenciaDisponible >= costoMovimiento)
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+    private boolean validarPotenciaDeteccion(double potenciaDisponible)
+    {
+        if (potenciaDisponible >= costoDeteccionCalor)
+        {
+            return true;
+        } else
+        {
+            return false;
+        }
+    }
+    public String getCodigo()
+    {
+        return codigo;
+    }
+    public double getUnidadesPotenciaInicial()
+    {
+        return potenciaInicial;
+    }
+    public int getCantidadRecargarDisponible()
+    {
+        return recargasDisponibles;
+    }
+    public int getCantidadDeteccionesCalor()
+    {
+        return cantDeteccionCalor;
+    }
+    public String getPosicionInicial()
+    {
+        String posicionInicial;
+        posicionInicial = "(" + posicionInicialX + "," + posicionInicialY + ")";
+        return posicionInicial;
+    }    
+    public ArrayList<ArrayList<String>> getListaMandatosExitosos()
+    {
+        return mandatosExitosos;
+    }
+    public ArrayList<ArrayList<String>> getListaMandatosFracasados()
+    {
+        return mandatosFracasados;
+    }
+    private String getFechayHoraMandato()
+    {
+        LocalDateTime ahora = LocalDateTime.now();
+        DateTimeFormatter formato = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss");
+        return ahora.format(formato);
+    }
+    private void registrarMandato(String tipo, String estatus)
+    {  
+        ArrayList<String> mandato = new ArrayList<>();
+        
+        mandato.add(getFechayHoraMandato());
+        mandato.add(tipo);
+        mandato.add(estatus);
+        
+        if ("Exitoso".equals(estatus))
+        {
+            mandatosExitosos.add(mandato);
+        } 
+        else
+        {
+            mandatosFracasados.add(mandato);
+        }
+    }
+}
